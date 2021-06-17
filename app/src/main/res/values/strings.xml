@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">GoalKeeper</string>
+    <string name="exMonth">January</string>
+    <string name="exMonthAbbrev">Jan</string>
+    <string name="exDate">30</string>
+    <string name="exYear">2021</string>
+    <string name="exDay">Saturday</string>
+    <string name="dayGoalButton">View today\'s goals</string>
+    <string name="weekGoalButton">View this week\'s goals</string>
+    <string name="monthGoalButton">View this month\'s goals</string>
 </resources>
