@@ -5,6 +5,12 @@ import android.content.Intent;
 import android.os.IBinder;
 
 public class AppWebConnect extends Service {
+
+    // Overview:
+    // This service's purpose is to manage the connection to Google Calendar servers. It is
+    // created and bound directly only by IO. It gains the account tokens from IO, and listens for
+    // updates. When events are changed, it will push the changes to the server.
+
     public AppWebConnect() {
     }
 

@@ -8,6 +8,12 @@ public class AppIO extends Service {
     public AppIO() {
     }
 
+    // Overview:
+    // IO is the center of the entire application. It provides an abstraction layer between data and
+    // activities, as well as a layer of abstraction between other services for validation. When
+    // started, it will create and bind te WebConnect and Notification services, and be the source
+    // of data for those services.
+
     // Things onBind has to do:
     // 1.) Link to User Info DB
     // 2.) Link to Events DB

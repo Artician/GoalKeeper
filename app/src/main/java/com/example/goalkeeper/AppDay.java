@@ -6,6 +6,12 @@ import android.os.Bundle;
 
 public class AppDay extends AppCompatActivity {
 
+    // Overview:
+    // This activity's main purpose is to display a detailed view of all goals and events the user
+    // has scheduled for that day. It also should have a shortcut button for the "daily" section of
+    // the goals menu. Current version will show a recycler view with all current events, or an
+    // empty list with the option to create a new event.
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

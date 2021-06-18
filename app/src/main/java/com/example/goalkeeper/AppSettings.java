@@ -6,6 +6,11 @@ import android.os.Bundle;
 
 public class AppSettings extends AppCompatActivity {
 
+    // Overview:
+    // This activity's purpose is to give the user a place to customize the behavior of the app.
+    // It gains the current user settings from IO, and posts updated settings to IO to update the
+    // database.
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
