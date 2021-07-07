@@ -4,6 +4,84 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@android:color/transparent"
     tools:context=".AppMonth">
 
+    <TextView
+        android:id="@+id/monthTextMA"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/exMonth"
+        android:textSize="30sp"
+        tools:layout_editor_absoluteX="95dp"
+        tools:layout_editor_absoluteY="23dp" />
+
+    <TextView
+        android:id="@+id/yearTextMA"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/exYear"
+        android:textSize="30sp"
+        tools:layout_editor_absoluteX="227dp"
+        tools:layout_editor_absoluteY="23dp" />
+
+    <ImageButton
+        android:id="@+id/forwardButtonMA"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@drawable/ic_baseline_arrow_right_24"
+        tools:layout_editor_absoluteX="328dp"
+        tools:layout_editor_absoluteY="12dp" />
+
+    <ImageButton
+        android:id="@+id/backButtonMA"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@drawable/ic_baseline_arrow_left_24"
+        tools:layout_editor_absoluteX="24dp"
+        tools:layout_editor_absoluteY="14dp" />
+
+    <Button
+        android:id="@+id/dateSelectMA"
+        android:layout_width="219dp"
+        android:layout_height="51dp"
+        android:text="@string/dateSelect"
+        android:visibility="visible"
+        tools:layout_editor_absoluteX="95dp"
+        tools:layout_editor_absoluteY="76dp" />
+
+    <TableLayout
+        android:layout_width="414dp"
+        android:layout_height="601dp"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="130dp">
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="74dp" />
+    </TableLayout>
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 </androidx.constraintlayout.widget.ConstraintLayout>

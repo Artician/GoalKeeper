@@ -8,4 +8,8 @@
     <string name="dayGoalButton">View today\'s goals</string>
     <string name="weekGoalButton">View this week\'s goals</string>
     <string name="monthGoalButton">View this month\'s goals</string>
+    <string name="plannerButton">Go to planner</string>
+    <string name="goalButton">Go to Goals</string>
+    <string name="copyright"> &#xA9;2021 - Jacob Moses - All Rights Reserved</string>
+    <string name="dateSelect">Select a date</string>
 </resources>

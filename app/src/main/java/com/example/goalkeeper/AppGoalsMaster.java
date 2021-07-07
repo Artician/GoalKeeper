@@ -6,6 +6,9 @@ import android.os.Bundle;
 
 public class AppGoalsMaster extends AppCompatActivity {
 
+    // Overview:
+    // Displays all active goals to the user.
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
