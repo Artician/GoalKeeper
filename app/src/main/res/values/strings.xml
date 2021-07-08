@@ -12,4 +12,12 @@
     <string name="goalButton">Go to Goals</string>
     <string name="copyright"> &#xA9;2021 - Jacob Moses - All Rights Reserved</string>
     <string name="dateSelect">Select a date</string>
+    <string name="mondayAbbrev">Mon</string>
+    <string name="tuesdayAbbrev">Tues</string>
+    <string name="wednesdayAbbrev">Wed</string>
+    <string name="thursdayAbbrev">Thurs</string>
+    <string name="fridayAbbrev">Fri</string>
+    <string name="saturdayAbbrev">Sat</string>
+    <string name="sundayAbbrev">Sun</string>
+
 </resources>

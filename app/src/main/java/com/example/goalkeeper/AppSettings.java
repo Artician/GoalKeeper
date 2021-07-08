@@ -17,6 +17,22 @@ public class AppSettings extends AppCompatActivity {
         setContentView(R.layout.activity_app_settings);
     }
 
+    // Settings List:
+    //               [ <key>                | <default value>                ]
+    //               [ plannerModeDefault   | day                            ]
+    //                  * What activity the app starts the planner in
+    //                  * Values: day, week, month
+    //               [ weekModeDefault      | 7 day                          ]
+    //                  * What mode week activity loads in
+    //                  * Values: 3, 5, and 7 day
+    //               [ notificationUrgency  | normal                         ]
+    //                  * How agressive the notifications should be
+    //                  * Values:  Gentle - on screen notification
+    //                  *          Normal - on screen notification, vibration, wake from sleep
+    //                  *          Agressive - all above, plus interrupts do not disturb and sets
+    //                  *                      an alarm
+    //
+
     // To do:
     //  1.) Get settings from IO
     //  2.) onClick for submit button view bundles up current settings and sends them to IO if valid

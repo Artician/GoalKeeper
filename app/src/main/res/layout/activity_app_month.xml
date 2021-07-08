@@ -8,7 +8,7 @@
     tools:context=".AppMonth">
 
     <TextView
-        android:id="@+id/monthTextMA"
+        android:id="@+id/MA_monthText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/exMonth"
@@ -17,7 +17,7 @@
         tools:layout_editor_absoluteY="23dp" />
 
     <TextView
-        android:id="@+id/yearTextMA"
+        android:id="@+id/MA_yearText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/exYear"
@@ -26,62 +26,74 @@
         tools:layout_editor_absoluteY="23dp" />
 
     <ImageButton
-        android:id="@+id/forwardButtonMA"
+        android:id="@+id/MA_forwardButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:onClick="onClickMonthNext"
         app:srcCompat="@drawable/ic_baseline_arrow_right_24"
         tools:layout_editor_absoluteX="328dp"
         tools:layout_editor_absoluteY="12dp" />
 
     <ImageButton
-        android:id="@+id/backButtonMA"
+        android:id="@+id/MA_backButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:onClick="onClickMonthPrev"
         app:srcCompat="@drawable/ic_baseline_arrow_left_24"
         tools:layout_editor_absoluteX="24dp"
         tools:layout_editor_absoluteY="14dp" />
 
     <Button
-        android:id="@+id/dateSelectMA"
+        android:id="@+id/MA_dateSelect"
         android:layout_width="219dp"
         android:layout_height="51dp"
+        android:onClick="onClickDateButton"
         android:text="@string/dateSelect"
         android:visibility="visible"
         tools:layout_editor_absoluteX="95dp"
         tools:layout_editor_absoluteY="76dp" />
 
     <TableLayout
+        android:id="@+id/MA_monthLayout"
         android:layout_width="414dp"
         android:layout_height="601dp"
         tools:layout_editor_absoluteX="0dp"
         tools:layout_editor_absoluteY="130dp">
 
         <TableRow
+            android:id="@+id/MA_dayLabels"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
         <TableRow
+            android:id="@+id/MA_week1"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
         <TableRow
+            android:id="@+id/MA_week2"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
         <TableRow
+            android:id="@+id/MA_week3"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
         <TableRow
+            android:id="@+id/MA_week4"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
         <TableRow
+            android:id="@+id/MA_week5"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <TableRow
+            android:id="@+id/MA_week6"
             android:layout_width="match_parent"
             android:layout_height="74dp" />
     </TableLayout>
 
-    <androidx.cardview.widget.CardView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -3,8 +3,11 @@ package com.example.goalkeeper;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+import android.view.View;
+import android.widget.TextView;
 
 public class AppDay extends AppCompatActivity {
+    TextView displayDate, displayDay, displayMonth, displayYear;
 
     // Overview:
     // This activity's main purpose is to display a detailed view of all goals and events the user
@@ -16,6 +19,17 @@ public class AppDay extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_app_day);
+        displayDate  = (TextView) findViewById(R.id.DA_dateText);
+        displayDay   = (TextView) findViewById(R.id.DA_dayText);
+        displayMonth = (TextView) findViewById(R.id.DA_monthText);
+        displayYear  = (TextView) findViewById(R.id.DA_yearText);
+    }
+
+    // Data manipulation
+
+    protected void
+
+    public void onClickDayGoal(View view) {
     }
 
     // To do:

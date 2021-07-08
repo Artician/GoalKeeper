@@ -7,7 +7,7 @@
     tools:context=".AppWeek">
 
     <Button
-        android:id="@+id/goalButtonWA"
+        android:id="@+id/WA_goalButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="48dp"
@@ -15,32 +15,32 @@
         android:textAlignment="center"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/secondMonthWA" />
+        app:layout_constraintTop_toBottomOf="@+id/WA_secondMonth" />
 
     <TextView
-        android:id="@+id/firstDayWA"
+        android:id="@+id/WA_firstDay"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:text="@string/exDate"
         android:textSize="60sp"
-        app:layout_constraintStart_toEndOf="@+id/prevWeekWA"
+        app:layout_constraintStart_toEndOf="@+id/WA_prevWeek"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/secondDayWA"
+        android:id="@+id/WA_secondDay"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
         android:text="@string/exDate"
         android:textSize="60sp"
-        app:layout_constraintEnd_toStartOf="@+id/nextWeekWA"
+        app:layout_constraintEnd_toStartOf="@+id/WA_nextWeek"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/secondMonthWA"
+        android:id="@+id/WA_secondMonth"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="96dp"
@@ -48,10 +48,10 @@
         android:textAlignment="center"
         android:textSize="30sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/secondDayWA" />
+        app:layout_constraintTop_toBottomOf="@+id/WA_secondDay" />
 
     <TextView
-        android:id="@+id/firstMonthWA"
+        android:id="@+id/WA_firstMonth"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="96dp"
@@ -59,21 +59,21 @@
         android:textAlignment="center"
         android:textSize="30sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/firstDayWA" />
+        app:layout_constraintTop_toBottomOf="@+id/WA_firstDay" />
 
     <ImageView
-        android:id="@+id/dashDateWA"
+        android:id="@+id/WA_dashDate"
         android:layout_width="74dp"
         android:layout_height="55dp"
         android:layout_marginTop="16dp"
-        app:layout_constraintEnd_toStartOf="@+id/secondDayWA"
+        app:layout_constraintEnd_toStartOf="@+id/WA_secondDay"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/firstDayWA"
+        app:layout_constraintStart_toEndOf="@+id/WA_firstDay"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/ic_baseline_minimize_24" />
 
     <ImageButton
-        android:id="@+id/nextWeekWA"
+        android:id="@+id/WA_nextWeek"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="48dp"
@@ -83,7 +83,7 @@
         app:srcCompat="@drawable/ic_baseline_arrow_right_24" />
 
     <ImageButton
-        android:id="@+id/prevWeekWA"
+        android:id="@+id/WA_prevWeek"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
