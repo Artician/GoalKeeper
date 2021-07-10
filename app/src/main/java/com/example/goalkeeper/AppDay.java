@@ -27,8 +27,6 @@ public class AppDay extends AppCompatActivity {
 
     // Data manipulation
 
-    protected void
-
     public void onClickDayGoal(View view) {
     }
 

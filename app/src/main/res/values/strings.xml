@@ -24,4 +24,5 @@
     <string name="weekMode">Default week setup</string>
     <string name="notificationUrgency">Default notification urgency</string>
     <string name="submitButton">Submit</string>
+    <string name="settingsTitle">Settings</string>
 </resources>
