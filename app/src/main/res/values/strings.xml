@@ -19,5 +19,9 @@
     <string name="fridayAbbrev">Fri</string>
     <string name="saturdayAbbrev">Sat</string>
     <string name="sundayAbbrev">Sun</string>
-
+    <string name="settingsString">Settings</string>
+    <string name="plannerMode">Default planner mode</string>
+    <string name="weekMode">Default week setup</string>
+    <string name="notificationUrgency">Default notification urgency</string>
+    <string name="submitButton">Submit</string>
 </resources>
