@@ -2,9 +2,15 @@ package com.example.goalkeeper;
 
 import android.app.Service;
 import android.content.Intent;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
+import android.os.Messenger;
 
 public class AppIO extends Service {
+    Messenger request;
+    Messenger response;
+    private static boolean isRunning = false;
     public AppIO() {
     }
 
@@ -22,6 +28,19 @@ public class AppIO extends Service {
     public IBinder onBind(Intent intent) {
         // TODO: Return the communication channel to the service.
         throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    public static boolean isRunning(){
+        return isRunning;
+    }
+
+    class AppIncomingHandler extends Handler{
+        @Override
+        public void handleMessage(Message incomingMessage){
+            response = incomingMessage.replyTo;
+
+
+        }
     }
 
     // To do:
