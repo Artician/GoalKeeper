@@ -1,20 +1,32 @@
 package com.example.goalkeeper;
 
+import android.app.AsyncNotedAppOp;
 import android.app.Service;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.util.Log;
+
+import androidx.loader.content.AsyncTaskLoader;
+import androidx.room.Room;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class AppIO extends Service {
+    // Messenger variables
     MyIncomingHandler myIncomingHandler = new MyIncomingHandler();
-
     Messenger request = new Messenger(myIncomingHandler);
     Messenger response;
 
+    // Database variables
+    AppSettingsDB settingsDB;
+    AppSettingsDAO settingsDAO;
     private static boolean isRunning = false;
     public AppIO() {
     }
@@ -30,12 +42,118 @@ public class AppIO extends Service {
     // 2.) Link to Events DB
 
     @Override
+    public void onCreate(){
+        initSettingsDB();
+    }
+
+    @Override
     public IBinder onBind(Intent intent) {
         return request.getBinder();
     }
 
     public static boolean isRunning(){
         return isRunning;
+    }
+
+    protected void initSettingsDB(){
+        settingsDB = Room.databaseBuilder(getApplicationContext(), AppSettingsDB.class, "settings-db").build();
+        settingsDAO = settingsDB.appSettingsDAO();
+    }
+
+    protected Bundle getSettings(){
+        List<AppSettingsEntity> settingsList = settingsDAO.getAllSettings();
+        Bundle retValue = new Bundle();
+
+        for(int i = 0; i < settingsList.size(); i++){
+            retValue.putInt(settingsList.get(i).setting_name, settingsList.get(i).value);
+        }
+
+        return retValue;
+    }
+    protected boolean updateSettings(Bundle settings){
+        List<AppSettingsEntity> updateList = new ArrayList<>();
+        int result;
+        if(!settings.isEmpty()){
+            if(settingsDAO.getAllSettings().size() >= 3){
+                boolean initialized = initDatabase();
+                if(initialized){
+                    if((settings.getInt("planner_default", 999) != 999)){
+                        AppSettingsEntity temp = new AppSettingsEntity();
+                        temp.setting_name   = "planner_default";
+                        temp.value          = settings.getInt("planner_default");
+
+                        updateList.add(temp);
+                    }
+                    if((settings.getInt("week_default", 999) != 999)){
+                        AppSettingsEntity temp = new AppSettingsEntity();
+                        temp.setting_name   = "week_default";
+                        temp.value          = settings.getInt("week_default");
+
+                        updateList.add(temp);
+                    }
+                    if((settings.getInt("notification_default", 999) != 999)){
+                        AppSettingsEntity temp = new AppSettingsEntity();
+                        temp.setting_name   = "notification_default";
+                        temp.value          = settings.getInt("notification_default");
+
+                        updateList.add(temp);
+                    }
+
+                    result = settingsDAO.updateSettings(updateList);
+
+
+                    if(result == updateList.size()){
+                        return true;
+                    }
+                    else{
+                        return false;
+                    }
+                }
+                else{
+                    return false;
+                }
+            }
+        }
+        else
+            return false;
+
+        return false;
+    }
+
+    protected boolean initDatabase(){
+        // Initialize defaults
+        if (settingsDAO.getAllSettings().size() > 3){
+            AppSettingsEntity temp = new AppSettingsEntity();
+            ArrayList<AppSettingsEntity> defaults = new ArrayList<>();
+            // Eventually, this should get data from an initialization activity
+            temp.setting_name  = "planner_default";
+            temp.value         = 0;
+            defaults.add(temp);
+
+            temp = new AppSettingsEntity();
+            temp.setting_name  = "week_default";
+            temp.value         = 2;
+            defaults.add(temp);
+
+
+            temp = new AppSettingsEntity();
+            temp.setting_name  = "notification_default";
+            temp.value         = 1;
+            defaults.add(temp);
+
+            for(int i = 0; i <= defaults.size(); i++){
+                settingsDAO.insertEntry(defaults.get(i));
+            }
+
+            if (settingsDAO.getAllSettings().size() == 3){
+                return true;
+            }
+            else{
+                return false;
+            }
+        } else{
+            return true;
+        }
     }
 
     class MyIncomingHandler extends Handler{
@@ -48,6 +166,19 @@ public class AppIO extends Service {
                 case 301:
                     replyToMainActivity(response, payload);
                     break;
+
+                case 305:
+                    switch (payload.getInt("request")){
+                        case 101: // Read from settings DB
+                            new readFromDatabaseTask().execute(response);
+                            break;
+                        case 102: // Write to settings DB
+                            Envelope forTask = new Envelope(response, payload);
+                            new writeToDatabaseTask().execute(forTask);
+                            break;
+                        default:
+                            break;
+                    }
                 default:
                     break;
             }
@@ -60,7 +191,7 @@ public class AppIO extends Service {
 
     protected void replyToMainActivity(Messenger postmarkedEnvelope, Bundle receivedData)  {
         if(receivedData.getInt("request") == 100){
-            Message response = new Message();
+            Message response = Message.obtain();
             Bundle sendData = new Bundle();
             sendData.putInt("source", 302);
             sendData.putInt("reply", 200);
@@ -72,6 +203,117 @@ public class AppIO extends Service {
             } catch (RemoteException e){
                 e.printStackTrace();
             }
+        }
+    }
+
+    protected void sendSettingsFromDB(Messenger postmarkedEnvelope, Bundle settings){
+        Message response = Message.obtain();
+        Bundle sendData = new Bundle();
+        sendData.putInt("source", 302);
+
+        if(settings.isEmpty()){
+            sendData.putInt("reply", 203);
+
+        } else{
+            sendData.putInt("reply", 202);
+            sendData.putInt("planner_default", settings.getInt("planner_default"));
+            sendData.putInt("week_default", settings.getInt("week_default"));
+            sendData.putInt("notification_default", settings.getInt("notification_default"));
+        }
+
+        response.setData(sendData);
+
+        try {
+            postmarkedEnvelope.send(response);
+        } catch (RemoteException e){
+            e.printStackTrace();
+        }
+    }
+
+    protected void sendDBUpdateStatus(Messenger postmarkedEnvelope, boolean success){
+        Message response = Message.obtain();
+        Bundle sendData = new Bundle();
+        sendData.putInt("source", 302);
+
+        if(success){
+            sendData.putInt("reply", 206);
+
+        } else{
+            sendData.putInt("reply", 207);
+        }
+
+        response.setData(sendData);
+
+        try {
+            postmarkedEnvelope.send(response);
+        } catch (RemoteException e){
+            e.printStackTrace();
+        }
+    }
+
+    private class readFromDatabaseTask extends AsyncTask<Messenger, Void, Void>{
+        Bundle settings = new Bundle();
+        Messenger response;
+
+        @Override
+        protected Void doInBackground(Messenger... messengers) {
+            response = messengers[0];
+            settings = getSettings();
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result){
+            sendSettingsFromDB(response, settings);
+        }
+    }
+
+    private class Envelope{
+        public Envelope() {
+        }
+
+        public Envelope(Messenger destination, Bundle data) {
+            this.destination = destination;
+            this.data = data;
+        }
+
+        public Messenger getDestination() {
+            return destination;
+        }
+
+        public void setDestination(Messenger destination) {
+            this.destination = destination;
+        }
+
+        public Bundle getData() {
+            return data;
+        }
+
+        public void setData(Bundle data) {
+            this.data = data;
+        }
+
+        public Messenger destination;
+        public Bundle data;
+    }
+
+    private class writeToDatabaseTask extends AsyncTask<Envelope, Void, Void>{
+        boolean success;
+        Messenger destination;
+
+        @Override
+        protected Void doInBackground(Envelope... envelopes) {
+            Envelope data = envelopes[0];
+            destination = data.destination;
+            //sendDBUpdateStatus(data.destination, updateSettings(data.data));
+            success = updateSettings(data.data);
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result){
+            sendDBUpdateStatus(destination, success);
         }
     }
 

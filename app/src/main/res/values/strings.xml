@@ -25,4 +25,5 @@
     <string name="notificationUrgency">Default notification urgency</string>
     <string name="submitButton">Submit</string>
     <string name="settingsTitle">Settings</string>
+    <string name="homeTitle">Home</string>
 </resources>

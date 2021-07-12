@@ -66,14 +66,14 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu){
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.action_bar, menu);
+        inflater.inflate(R.menu.action_bar_home, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
         switch(item.getItemId()){
-            case R.id.action_settings:
+            case R.id.settings_action:
                 callSettings();
                 return true;
             default:
@@ -168,14 +168,6 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    public void onClickDebugButton(View view) {
-        if(requestForIO != null){
-            messageToIO();
-        }
-        else{
-            Toast.makeText(this, "Service not yet ready", Toast.LENGTH_SHORT).show();
-        }
-    }
 
     class MyIncomingHandler extends Handler{
         @Override
@@ -201,6 +193,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             requestForIO = new Messenger(service);
+            messageToIO();
         }
 
         @Override
@@ -222,7 +215,7 @@ public class MainActivity extends AppCompatActivity {
     //
     // Response codes:
     // 200 - ACK
-    // 201 - NACK
+    // 201 -
     // 202 - Aff - data included
     // 203 - Neg - data not found
     // 204 - Aff - data not included
