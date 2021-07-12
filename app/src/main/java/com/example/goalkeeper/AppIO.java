@@ -1,6 +1,5 @@
 package com.example.goalkeeper;
 
-import android.app.AsyncNotedAppOp;
 import android.app.Service;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -10,9 +9,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
-import android.util.Log;
 
-import androidx.loader.content.AsyncTaskLoader;
 import androidx.room.Room;
 
 import java.util.ArrayList;
@@ -27,7 +24,13 @@ public class AppIO extends Service {
     // Database variables
     AppSettingsDB settingsDB;
     AppSettingsDAO settingsDAO;
-    private static boolean isRunning = false;
+    AppEventsDB eventsDB;
+    AppEventsDAO eventsDAO;
+
+    // Data variables for other activities
+    ArrayList<AppEventsEntity> events = new ArrayList<>();
+    Bundle settingsObject = new Bundle();
+
     public AppIO() {
     }
 
@@ -41,9 +44,11 @@ public class AppIO extends Service {
     // 1.) Link to User Info DB
     // 2.) Link to Events DB
 
+    // Lifecycle Methods
     @Override
     public void onCreate(){
-        initSettingsDB();
+        initDB();
+        new readFromEventsDBTask().execute();
     }
 
     @Override
@@ -51,15 +56,45 @@ public class AppIO extends Service {
         return request.getBinder();
     }
 
-    public static boolean isRunning(){
-        return isRunning;
-    }
-
-    protected void initSettingsDB(){
+    // Database Init  Helper functions
+    protected void initDB(){
         settingsDB = Room.databaseBuilder(getApplicationContext(), AppSettingsDB.class, "settings-db").build();
         settingsDAO = settingsDB.appSettingsDAO();
+        eventsDB = Room.databaseBuilder(getApplicationContext(), AppEventsDB.class, "events_db").build();
+        eventsDAO = eventsDB.appEventsDAO();
     }
 
+    // Settings DB helper functions
+    protected boolean initDatabase(){
+        // Initialize defaults
+        if (settingsDAO.getAllSettings().size() > 3){
+            AppSettingsEntity temp = new AppSettingsEntity();
+            ArrayList<AppSettingsEntity> defaults = new ArrayList<>();
+            // Eventually, this should get data from an initialization activity
+            temp.setting_name  = "planner_default";
+            temp.value         = 0;
+            defaults.add(temp);
+
+            temp = new AppSettingsEntity();
+            temp.setting_name  = "week_default";
+            temp.value         = 2;
+            defaults.add(temp);
+
+
+            temp = new AppSettingsEntity();
+            temp.setting_name  = "notification_default";
+            temp.value         = 1;
+            defaults.add(temp);
+
+            for(int i = 0; i <= defaults.size(); i++){
+                settingsDAO.insertEntry(defaults.get(i));
+            }
+
+            return settingsDAO.getAllSettings().size() == 3;
+        } else{
+            return true;
+        }
+    }
     protected Bundle getSettings(){
         List<AppSettingsEntity> settingsList = settingsDAO.getAllSettings();
         Bundle retValue = new Bundle();
@@ -67,6 +102,8 @@ public class AppIO extends Service {
         for(int i = 0; i < settingsList.size(); i++){
             retValue.putInt(settingsList.get(i).setting_name, settingsList.get(i).value);
         }
+
+        settingsObject = retValue;
 
         return retValue;
     }
@@ -102,12 +139,7 @@ public class AppIO extends Service {
                     result = settingsDAO.updateSettings(updateList);
 
 
-                    if(result == updateList.size()){
-                        return true;
-                    }
-                    else{
-                        return false;
-                    }
+                    return result == updateList.size();
                 }
                 else{
                     return false;
@@ -120,42 +152,66 @@ public class AppIO extends Service {
         return false;
     }
 
-    protected boolean initDatabase(){
-        // Initialize defaults
-        if (settingsDAO.getAllSettings().size() > 3){
-            AppSettingsEntity temp = new AppSettingsEntity();
-            ArrayList<AppSettingsEntity> defaults = new ArrayList<>();
-            // Eventually, this should get data from an initialization activity
-            temp.setting_name  = "planner_default";
-            temp.value         = 0;
-            defaults.add(temp);
+    // Events DB helper functions
+    protected void getEvents(){
+        List<AppEventsEntity> eventsList = eventsDAO.loadAllEvents();
 
-            temp = new AppSettingsEntity();
-            temp.setting_name  = "week_default";
-            temp.value         = 2;
-            defaults.add(temp);
-
-
-            temp = new AppSettingsEntity();
-            temp.setting_name  = "notification_default";
-            temp.value         = 1;
-            defaults.add(temp);
-
-            for(int i = 0; i <= defaults.size(); i++){
-                settingsDAO.insertEntry(defaults.get(i));
-            }
-
-            if (settingsDAO.getAllSettings().size() == 3){
-                return true;
-            }
-            else{
-                return false;
-            }
-        } else{
-            return true;
+        for(int i = 0; i < events.size(); i++){
+            events.add(eventsList.get(i));
         }
     }
+    protected void writeEvent(AppEventsEntity event, char code){
+        switch(code){
+            case 'I':
+                insertEvent(event);
+                break;
+            case 'U':
+                updateEvent(event);
+                break;
+            case 'D':
+                deleteEvent(event);
+                break;
+            default:
+                break;
+        }
+    }
+    protected void insertEvent(AppEventsEntity newEvent){
+        eventsDAO.insertEvent(newEvent);
+    }
+    protected void updateEvent(AppEventsEntity updateEvent){
+        eventsDAO.updateEvent(updateEvent);
+    }
+    protected void deleteEvent(AppEventsEntity deleteEvent){
+        eventsDAO.deleteEvent(deleteEvent);
+    }
+    protected Bundle makeEventBundle(){
+        Bundle returnValue = new Bundle();
+        Bundle temp = new Bundle();
 
+        returnValue.putInt("size", events.size());
+
+        for(int i = 0; i < events.size(); i++){
+            temp.putInt("eventID", events.get(i).eventID);
+            temp.putString("calendar", events.get(i).calendar);
+            temp.putString("eventTitle", events.get(i).eventTitle);
+            temp.putInt("startTime", events.get(i).startTime);
+            temp.putInt("endTime", events.get(i).endTime);
+            temp.putString("RRule", events.get(i).RRule);
+            temp.putBoolean("hasParent", events.get(i).hasParent);
+            temp.putInt("parentID", events.get(i).parentID);
+            temp.putString("status", events.get(i).status);
+            temp.putString("location", events.get(i).location);
+            temp.putString("summary", events.get(i).summary);
+            temp.putBoolean("doRemind", events.get(i).doRemind);
+            temp.putInt("remindInterval", events.get(i).remindInterval);
+
+            returnValue.putBundle("" + i, temp);
+        }
+
+        return returnValue;
+    }
+
+    // Messaging handlers
     class MyIncomingHandler extends Handler{
         @Override
         public void handleMessage(Message incomingMessage){
@@ -170,11 +226,11 @@ public class AppIO extends Service {
                 case 305:
                     switch (payload.getInt("request")){
                         case 101: // Read from settings DB
-                            new readFromDatabaseTask().execute(response);
+                            new readFromSettingsDatabaseTask().execute(response);
                             break;
                         case 102: // Write to settings DB
                             Envelope forTask = new Envelope(response, payload);
-                            new writeToDatabaseTask().execute(forTask);
+                            new writeToSettingsDatabaseTask().execute(forTask);
                             break;
                         default:
                             break;
@@ -187,8 +243,7 @@ public class AppIO extends Service {
         }
     }
 
-    // Specific replyTo methods to make code more readable
-
+    // Specific messaging functions
     protected void replyToMainActivity(Messenger postmarkedEnvelope, Bundle receivedData)  {
         if(receivedData.getInt("request") == 100){
             Message response = Message.obtain();
@@ -196,6 +251,7 @@ public class AppIO extends Service {
             sendData.putInt("source", 302);
             sendData.putInt("reply", 200);
             sendData.putString("reply_text", "OK");
+            sendData.putBundle("settings", settingsObject);
             response.setData(sendData);
 
             try{
@@ -205,7 +261,6 @@ public class AppIO extends Service {
             }
         }
     }
-
     protected void sendSettingsFromDB(Messenger postmarkedEnvelope, Bundle settings){
         Message response = Message.obtain();
         Bundle sendData = new Bundle();
@@ -229,7 +284,6 @@ public class AppIO extends Service {
             e.printStackTrace();
         }
     }
-
     protected void sendDBUpdateStatus(Messenger postmarkedEnvelope, boolean success){
         Message response = Message.obtain();
         Bundle sendData = new Bundle();
@@ -251,24 +305,8 @@ public class AppIO extends Service {
         }
     }
 
-    private class readFromDatabaseTask extends AsyncTask<Messenger, Void, Void>{
-        Bundle settings = new Bundle();
-        Messenger response;
 
-        @Override
-        protected Void doInBackground(Messenger... messengers) {
-            response = messengers[0];
-            settings = getSettings();
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void result){
-            sendSettingsFromDB(response, settings);
-        }
-    }
-
+    // Custom data types
     private class Envelope{
         public Envelope() {
         }
@@ -297,8 +335,51 @@ public class AppIO extends Service {
         public Messenger destination;
         public Bundle data;
     }
+    private class DataPackage{
+        public DataPackage(char code, AppEventsEntity data) {
+            this.code = code;
+            this.data = data;
+        }
 
-    private class writeToDatabaseTask extends AsyncTask<Envelope, Void, Void>{
+        public char getCode() {
+            return code;
+        }
+
+        public void setCode(char code) {
+            this.code = code;
+        }
+
+        public AppEventsEntity getData() {
+            return data;
+        }
+
+        public void setData(AppEventsEntity data) {
+            this.data = data;
+        }
+
+        public char code;
+        public AppEventsEntity data;
+    }
+
+    // AsyncTask classes for settings database access
+    private class readFromSettingsDatabaseTask extends AsyncTask<Messenger, Void, Void>{
+        Bundle settings = new Bundle();
+        Messenger response;
+
+        @Override
+        protected Void doInBackground(Messenger... messengers) {
+            response = messengers[0];
+            settings = getSettings();
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result){
+            sendSettingsFromDB(response, settings);
+        }
+    }
+    private class writeToSettingsDatabaseTask extends AsyncTask<Envelope, Void, Void>{
         boolean success;
         Messenger destination;
 
@@ -314,6 +395,27 @@ public class AppIO extends Service {
         @Override
         protected void onPostExecute(Void result){
             sendDBUpdateStatus(destination, success);
+        }
+    }
+
+    // AsyncTask Classes for Events DB
+    private class readFromEventsDBTask extends AsyncTask<Void, Void, Void>{
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            getEvents();
+            return null;
+        }
+
+    }
+    private class writeToEventsDBTask  extends AsyncTask<DataPackage, Void, Void>{
+
+        @Override
+        protected Void doInBackground(DataPackage... dataPackages) {
+            DataPackage info = new DataPackage(dataPackages[0].code, dataPackages[0].data);
+
+            writeEvent(info.data, info.code);
+            return null;
         }
     }
 

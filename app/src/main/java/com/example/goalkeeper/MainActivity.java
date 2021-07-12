@@ -32,6 +32,10 @@ public class MainActivity extends AppCompatActivity {
     // Views
     TextView debugText;
 
+    // Variables
+
+    Bundle settings = new Bundle();
+
     // Overview:
     // This activity is the point of entry for the app. When it is loaded, it initializes the app,
     // binds the IO service (which starts the underlying logic for the rest of the app), and
@@ -73,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
         switch(item.getItemId()){
-            case R.id.settings_action:
+            case R.id.HA_settings_action:
                 callSettings();
                 return true;
             default:
@@ -168,6 +172,30 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    public void onClickPlannerButton(View view) {
+        Intent intent;
+
+        switch (settings.getInt("planner_default")){
+            case 0:
+                intent = new Intent(getApplicationContext(), AppDay.class);
+                startActivity(intent);
+                break;
+            case 1:
+                intent = new Intent(getApplicationContext(), AppWeek.class);
+                startActivity(intent);
+                break;
+            case 2:
+                intent = new Intent(getApplicationContext(), AppMonth.class);
+                startActivity(intent);
+                break;
+            default:
+                break;
+        }
+    }
+
+    public void onClickGoalsButton(View view) {
+    }
+
 
     class MyIncomingHandler extends Handler{
         @Override
@@ -177,8 +205,9 @@ public class MainActivity extends AppCompatActivity {
             Bundle payload = msg.getData();
             // Do some stuff with the variables and the reply codes
 
-            replyCode = payload.getInt("reply");
-            replyText = payload.getCharSequence("reply_text");
+            replyCode   = payload.getInt("reply");
+            replyText   = payload.getCharSequence("reply_text");
+            settings    = payload.getBundle("settings");
 
             if(replyCode == 200){ // ACK code from IO
                 String newDebug = "IO Service status:     " +

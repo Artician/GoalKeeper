@@ -109,7 +109,7 @@
      @Override
      public boolean onOptionsItemSelected(MenuItem item){
          switch(item.getItemId()){
-             case R.id.home_action:
+             case R.id.SA_home_action:
                  callHome();
                  return true;
              default:
