@@ -9,7 +9,12 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.GoalKeeper">
-        <activity android:name=".AppTaskCreate"></activity>
+        <service
+            android:name=".AppPlannerService"
+            android:enabled="true"
+            android:exported="true"></service>
+
+        <activity android:name=".AppTaskCreate" />
         <activity android:name=".AppTaskView" />
         <activity android:name=".AppGoalsBuilder" />
         <activity android:name=".AppGoalsYear" />

@@ -99,6 +99,27 @@
             }
         }
 
+        @Override
+        protected void onPause(){
+            super.onPause();
+
+            unBindIO();
+        }
+
+        @Override
+        protected void onStop(){
+            super.onStop();
+
+            unBindIO();
+        }
+
+        @Override
+        protected void onDestroy(){
+            super.onDestroy();
+
+            unBindIO();
+        }
+
      @Override
      public boolean onCreateOptionsMenu(Menu menu){
          MenuInflater inflater = getMenuInflater();
@@ -123,14 +144,21 @@
 
      }
 
+     void unBindIO(){
+         if(isBoundIO){
+             unbindService(ioServiceConnection);
+             isBoundIO = false;
+         }
+     }
+
      public void requestForDefaults(){
          if(isBoundIO)
          {
 
 
              Bundle data = new Bundle();
-             data.putInt("source", 305);
-             data.putInt("request", 101);
+             data.putInt("source", R.integer.APP_SETTINGS);
+             data.putInt("request", R.integer.READ_REQUEST);
 
              Message message = Message.obtain();
              message.replyTo = replyFromIO;
@@ -148,8 +176,8 @@
 
      public void updateDB(Bundle update){
             Bundle payload = new Bundle(); //Bundle.deepcopy isn't in this sdk
-            payload.putInt("source", 305);
-            payload.putInt("request", 102);
+            payload.putInt("source", R.integer.APP_SETTINGS);
+            payload.putInt("request", R.integer.WRITE_REQUEST);
             payload.putInt("planner_default", update.getInt("planner_default"));
             payload.putInt("week_default", update.getInt("week_default"));
             payload.putInt("notification_default", update.getInt("notification_default"));
@@ -215,21 +243,19 @@
              replyCode = payload.getInt("reply");
 
              switch (replyCode){
-                 case 202: // Settings found and included
+                 case R.integer.READ_OK_RESULT_INCLUDED: // Settings found and included
                      existSettings = new Bundle();
-                     existSettings.putInt("planner_default", payload.getInt("planner_default"));
-                     existSettings.putInt("week_default", payload.getInt("week_default"));
-                     existSettings.putInt("notification_default", payload.getInt("notification_default"));
+                     existSettings = payload.getBundle("settings");
 
                      updateViews(existSettings);
                      break;
-                 case 203: // Settings not found
+                 case R.integer.READ_BAD_NO_DATA: // Settings not found
                      Toast.makeText(getApplicationContext(), "Settings database not found",Toast.LENGTH_SHORT).show();
                      break;
-                 case 206: // Database updated
+                 case R.integer.DB_WRITE_OK: // Database updated
                      Toast.makeText(getApplicationContext(), "Settings updated", Toast.LENGTH_SHORT).show();
                      break;
-                 case 207: // Database update failed
+                 case R.integer.DB_WRITE_FAILED: // Database update failed
                      Toast.makeText(getApplicationContext(), "Settings failed to update", Toast.LENGTH_SHORT).show();
                      break;
                  default:

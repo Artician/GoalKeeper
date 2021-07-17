@@ -3,14 +3,20 @@ package com.example.goalkeeper;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
+import android.content.ComponentName;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.IBinder;
+import android.os.Message;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.Calendar;
 import java.util.List;
@@ -82,5 +88,45 @@ public class AppMonth extends AppCompatActivity {
     }
 
     public void onClickMonthNext(View view) {
+    }
+
+    class MyIncomingHandler extends Handler {
+        @Override
+        public void handleMessage(Message msg){
+            int replyCode;
+            Bundle payload = msg.getData();
+            // Do some stuff with the variables and the reply codes
+
+            replyCode = payload.getInt("reply");
+
+            switch (replyCode){
+                case R.integer.READ_OK_RESULT_INCLUDED: // Settings found and included
+                    break;
+                case R.integer.READ_BAD_NO_DATA: // Settings not found
+                    Toast.makeText(getApplicationContext(), "Settings database not found",Toast.LENGTH_SHORT).show();
+                    break;
+                case R.integer.DB_WRITE_OK: // Database updated
+                    Toast.makeText(getApplicationContext(), "Settings updated", Toast.LENGTH_SHORT).show();
+                    break;
+                case R.integer.DB_WRITE_FAILED: // Database update failed
+                    Toast.makeText(getApplicationContext(), "Settings failed to update", Toast.LENGTH_SHORT).show();
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    class PlannerServiceConenction implements ServiceConnection {
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+
+        }
     }
 }

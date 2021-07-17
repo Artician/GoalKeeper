@@ -25,9 +25,13 @@ public class MainActivity extends AppCompatActivity {
     // Messaging and connection variables
     MyIncomingHandler incomingHandler = new MyIncomingHandler();
     boolean isBoundIO = false;
+    boolean isBoundPlanner = false;
     Messenger requestForIO;
     Messenger replyFromIO = new Messenger(incomingHandler);
+    Messenger requestForPlanner;
+    Messenger replyFromPlanner;
     ServiceConnection ioServiceConnection = new IOServiceConnection();
+    ServiceConnection plannerServiceConnection = new PlannerServiceConnection();
 
     // Views
     TextView debugText;
@@ -62,9 +66,52 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onRestart(){
+        super.onRestart();
+
+        try{
+            if(!init()){
+                throw new MissingResourceException("Application components failed to load.", "MainActivity.class", "bad_init");
+            }
+        } catch (MissingResourceException e){
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    protected void onResume(){
+        super.onResume();
+
+        try{
+            if(!init()){
+                throw new MissingResourceException("Application components failed to load.", "MainActivity.class", "bad_init");
+            }
+        } catch (MissingResourceException e){
+            e.printStackTrace();
+        }
+
+    }
+
+    @Override
     protected void onStop() {
         super.onStop();
         unBindIO();
+        unBindPlanner();
+    }
+
+    @Override
+    protected void onPause(){
+        super.onPause();
+        unBindIO();
+        unBindPlanner();
+    }
+
+    @Override
+    protected void onDestroy(){
+        super.onDestroy();
+        unBindIO();
+        unBindPlanner();
+
     }
 
     @Override
@@ -118,20 +165,53 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
+    protected void initPlanner(){
+
+        try{
+            isBoundPlanner = bindPlanner();
+            if(!isBoundPlanner){
+              throw new MissingResourceException("Planner service failed to bind", "MainActivity.class", "bad_bind");
+            }
+        } catch (MissingResourceException e){
+            e.printStackTrace();
+        }
+    }
+
     public void messageToIO(){
         if(isBoundIO)
         {
 
 
             Bundle data = new Bundle();
-            data.putInt("source", 301);
-            data.putInt("request", 100);
+            data.putInt("source", R.integer.MAIN_ACTIVITY);
+            data.putInt("request", R.integer.ACK_REQUEST);
 
             Message message = Message.obtain();
             message.replyTo = replyFromIO;
             message.setData(data);
             try {
                 requestForIO.send(message);
+            } catch (RemoteException e){
+                e.printStackTrace();
+            }
+        }
+        else{
+            Toast.makeText(this, "Service not bound", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public void messageToPlanner(){
+        if(isBoundPlanner)
+        {
+            Bundle data = new Bundle();
+            data.putInt("source", R.integer.MAIN_ACTIVITY);
+            data.putInt("request", R.integer.LAUNCH_ACTIVITY_REQUEST);
+
+            Message message = Message.obtain();
+            message.replyTo = replyFromPlanner;
+            message.setData(data);
+            try {
+                requestForPlanner.send(message);
             } catch (RemoteException e){
                 e.printStackTrace();
             }
@@ -156,10 +236,31 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    void unBindIO(){
+    protected void startPlanner() throws MissingResourceException{
+        ComponentName resValue;
+        Intent intentPlanner = new Intent(getApplicationContext(), AppPlannerService.class);
+        resValue = startService(intentPlanner);
+
+        if(resValue == null)
+            throw new MissingResourceException("Unable to start service", "MainActivity.class", "bad_start");
+    }
+
+    protected boolean bindPlanner() throws MissingResourceException{
+        Intent intentPlanner = new Intent(getApplicationContext(), AppPlannerService.class);
+        return bindService(intentPlanner, plannerServiceConnection, Context.BIND_AUTO_CREATE);
+    }
+
+    protected void unBindIO(){
         if(isBoundIO){
             unbindService(ioServiceConnection);
             isBoundIO = false;
+        }
+    }
+
+    protected void unBindPlanner(){
+        if(isBoundPlanner){
+            unbindService(plannerServiceConnection);
+            isBoundPlanner = false;
         }
     }
 
@@ -173,9 +274,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onClickPlannerButton(View view) {
-        Intent intent;
+         initPlanner();
+    }
 
-        switch (settings.getInt("planner_default")){
+    protected void callPlanner(int option){
+
+        Intent intent;
+        switch (option){
             case 0:
                 intent = new Intent(getApplicationContext(), AppDay.class);
                 startActivity(intent);
@@ -209,7 +314,7 @@ public class MainActivity extends AppCompatActivity {
             replyText   = payload.getCharSequence("reply_text");
             settings    = payload.getBundle("settings");
 
-            if(replyCode == 200){ // ACK code from IO
+            if(replyCode == R.integer.ACK){ // ACK code from IO
                 String newDebug = "IO Service status:     " +
                         replyText;
                 setDebugText(newDebug);
@@ -228,6 +333,21 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onServiceDisconnected(ComponentName name) {
             requestForIO = null;
+        }
+    }
+
+    class PlannerServiceConnection implements ServiceConnection{
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            requestForPlanner = new Messenger(service);
+            messageToPlanner();
+
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            requestForPlanner = null;
         }
     }
     // Message structure:
@@ -274,7 +394,7 @@ public class MainActivity extends AppCompatActivity {
     // 315 - AppGoalsBuilder
     // 316 - AppTaskView
     // 317 - AppTaskCreate
-    // 318 -
+    // 318 - AppPlannerService
 
     // To do:
     //  1.) User Data function

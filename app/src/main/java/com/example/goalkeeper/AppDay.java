@@ -2,17 +2,32 @@ package com.example.goalkeeper;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.IBinder;
+import android.os.Message;
+import android.os.Messenger;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.Calendar;
+import java.util.MissingResourceException;
 
 public class AppDay extends AppCompatActivity {
+    MyIncomingHandler incomingHandler = new MyIncomingHandler();
+    boolean isBoundPlanner = false;
+    Messenger requestForPlanner;
+    Messenger replyFromPlanner = new Messenger(incomingHandler);
+    ServiceConnection plannerServiceConnection = new PlannerServiceConenction();
+
     TextView displayDate, displayDay, displayMonth, displayYear;
     Bundle eventsBundle;
     Calendar today;
@@ -27,13 +42,7 @@ public class AppDay extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_app_day);
-        displayDate  = (TextView) findViewById(R.id.DA_dateText);
-        displayDay   = (TextView) findViewById(R.id.DA_dayText);
-        displayMonth = (TextView) findViewById(R.id.DA_monthText);
-        displayYear  = (TextView) findViewById(R.id.DA_yearText);
-
-        today = Calendar.getInstance();
-        updateViewsToDate();
+        init();
     }
 
     @Override
@@ -57,6 +66,30 @@ public class AppDay extends AppCompatActivity {
         }
     }
 
+    protected void init(){
+        displayDate  = (TextView) findViewById(R.id.DA_dateText);
+        displayDay   = (TextView) findViewById(R.id.DA_dayText);
+        displayMonth = (TextView) findViewById(R.id.DA_monthText);
+        displayYear  = (TextView) findViewById(R.id.DA_yearText);
+
+        today = Calendar.getInstance();
+        updateViewsToDate();
+
+        try{
+            isBoundPlanner = bindPlanner();
+            if(!isBoundPlanner){
+                throw new MissingResourceException("Planner service failed to bind", "MainActivity.class", "bad_bind");
+            }
+        } catch (MissingResourceException e){
+            e.printStackTrace();
+        }
+    }
+
+    protected boolean bindPlanner(){
+        Intent intentPlanner = new Intent(getApplicationContext(), AppPlannerService.class);
+        return bindService(intentPlanner, plannerServiceConnection, Context.BIND_AUTO_CREATE);
+    }
+
     protected void callHome(){
         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
         startActivity(intent);
@@ -66,7 +99,6 @@ public class AppDay extends AppCompatActivity {
         Intent intent = new Intent(getApplicationContext(), AppSettings.class);
         startActivity(intent);
     }
-
 
     protected void updateViewsToDate(){
         String day      = getDay(today.get(Calendar.DAY_OF_WEEK));
@@ -130,8 +162,44 @@ public class AppDay extends AppCompatActivity {
     }
 
     // Data manipulation
-
     public void onClickDayGoal(View view) {
+    }
+
+    class MyIncomingHandler extends Handler {
+        @Override
+        public void handleMessage(Message msg){
+            Bundle payload = msg.getData();
+            // Do some stuff with the variables and the reply codes
+
+            switch (payload.getInt("reply")){
+                case R.integer.READ_OK_RESULT_INCLUDED: // Settings found and included
+                    break;
+                case R.integer.READ_BAD_NO_DATA: // Settings not found
+                    Toast.makeText(getApplicationContext(), "Settings database not found",Toast.LENGTH_SHORT).show();
+                    break;
+                case R.integer.DB_WRITE_OK: // Database updated
+                    Toast.makeText(getApplicationContext(), "Settings updated", Toast.LENGTH_SHORT).show();
+                    break;
+                case R.integer.DB_WRITE_FAILED: // Database update failed
+                    Toast.makeText(getApplicationContext(), "Settings failed to update", Toast.LENGTH_SHORT).show();
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    class PlannerServiceConenction implements ServiceConnection {
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+
+        }
     }
 
     // To do:

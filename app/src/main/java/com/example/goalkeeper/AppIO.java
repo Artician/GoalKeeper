@@ -9,6 +9,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.util.Log;
 
 import androidx.room.Room;
 
@@ -67,7 +68,9 @@ public class AppIO extends Service {
     // Settings DB helper functions
     protected boolean initDatabase(){
         // Initialize defaults
-        if (settingsDAO.getAllSettings().size() > 3){
+        Log.i("initDatabase", "initDatabase entered. SettingsDAO size is: " + settingsDAO.getAllSettings().size());
+        if (settingsDAO.getAllSettings().size() < 3){
+            Log.i("initDatabase", "Size less than 3, creating new database");
             AppSettingsEntity temp = new AppSettingsEntity();
             ArrayList<AppSettingsEntity> defaults = new ArrayList<>();
             // Eventually, this should get data from an initialization activity
@@ -86,10 +89,11 @@ public class AppIO extends Service {
             temp.value         = 1;
             defaults.add(temp);
 
-            for(int i = 0; i <= defaults.size(); i++){
+            for(int i = 0; i < defaults.size(); i++){
                 settingsDAO.insertEntry(defaults.get(i));
             }
 
+            Log.i("initDatabase", "Operation complete, SettingsDAO Size is: " + settingsDAO.getAllSettings().size());
             return settingsDAO.getAllSettings().size() == 3;
         } else{
             return true;
@@ -110,8 +114,8 @@ public class AppIO extends Service {
     protected boolean updateSettings(Bundle settings){
         List<AppSettingsEntity> updateList = new ArrayList<>();
         int result;
+        Log.i("updateSettings", "updateSettings entered, SettingsDAO size is: " + settingsDAO.getAllSettings().size());
         if(!settings.isEmpty()){
-            if(settingsDAO.getAllSettings().size() >= 3){
                 boolean initialized = initDatabase();
                 if(initialized){
                     if((settings.getInt("planner_default", 999) != 999)){
@@ -144,12 +148,11 @@ public class AppIO extends Service {
                 else{
                     return false;
                 }
-            }
+
         }
         else
             return false;
 
-        return false;
     }
 
     // Events DB helper functions
@@ -219,18 +222,26 @@ public class AppIO extends Service {
             Bundle payload = incomingMessage.getData();
 
             switch(payload.getInt("source")){
-                case 301:
+                case R.integer.MAIN_ACTIVITY:
                     replyToMainActivity(response, payload);
                     break;
 
-                case 305:
+                case R.integer.APP_SETTINGS:
                     switch (payload.getInt("request")){
-                        case 101: // Read from settings DB
+                        case R.integer.READ_REQUEST: // Read from settings DB
                             new readFromSettingsDatabaseTask().execute(response);
                             break;
-                        case 102: // Write to settings DB
+                        case R.integer.WRITE_REQUEST: // Write to settings DB
                             Envelope forTask = new Envelope(response, payload);
                             new writeToSettingsDatabaseTask().execute(forTask);
+                            break;
+                        default:
+                            break;
+                    }
+                case R.integer.APP_PLANNER_SERVICE:
+                    switch (payload.getInt("request")){
+                        case R.integer.READ_REQUEST: // Read from settings DB
+                            new readFromSettingsDatabaseTask().execute(response);
                             break;
                         default:
                             break;
@@ -245,11 +256,11 @@ public class AppIO extends Service {
 
     // Specific messaging functions
     protected void replyToMainActivity(Messenger postmarkedEnvelope, Bundle receivedData)  {
-        if(receivedData.getInt("request") == 100){
+        if(receivedData.getInt("request") == R.integer.ACK_REQUEST){
             Message response = Message.obtain();
             Bundle sendData = new Bundle();
-            sendData.putInt("source", 302);
-            sendData.putInt("reply", 200);
+            sendData.putInt("source", R.integer.APP_IO);
+            sendData.putInt("reply", R.integer.ACK);
             sendData.putString("reply_text", "OK");
             sendData.putBundle("settings", settingsObject);
             response.setData(sendData);
@@ -264,16 +275,14 @@ public class AppIO extends Service {
     protected void sendSettingsFromDB(Messenger postmarkedEnvelope, Bundle settings){
         Message response = Message.obtain();
         Bundle sendData = new Bundle();
-        sendData.putInt("source", 302);
+        sendData.putInt("source", R.integer.APP_IO);
 
         if(settings.isEmpty()){
-            sendData.putInt("reply", 203);
+            sendData.putInt("reply", R.integer.READ_BAD_NO_DATA);
 
         } else{
-            sendData.putInt("reply", 202);
-            sendData.putInt("planner_default", settings.getInt("planner_default"));
-            sendData.putInt("week_default", settings.getInt("week_default"));
-            sendData.putInt("notification_default", settings.getInt("notification_default"));
+            sendData.putInt("reply", R.integer.READ_OK_RESULT_INCLUDED);
+            sendData.putBundle("settings", settings);
         }
 
         response.setData(sendData);
@@ -287,13 +296,13 @@ public class AppIO extends Service {
     protected void sendDBUpdateStatus(Messenger postmarkedEnvelope, boolean success){
         Message response = Message.obtain();
         Bundle sendData = new Bundle();
-        sendData.putInt("source", 302);
+        sendData.putInt("source", R.integer.APP_IO);
 
         if(success){
-            sendData.putInt("reply", 206);
+            sendData.putInt("reply", R.integer.DB_WRITE_OK);
 
         } else{
-            sendData.putInt("reply", 207);
+            sendData.putInt("reply", R.integer.DB_WRITE_FAILED);
         }
 
         response.setData(sendData);
@@ -424,47 +433,6 @@ public class AppIO extends Service {
     // [source              |calling activity ID code   ]
     // [request             |request code               ]
     //
-    // Request codes:
-    // 100 - Request for acknowledgement
-    // 101 - Request to read data
-    // 102 - Request to write data
-    // 103 - Request for update to AppWebConnect
-    // 104 - Request to update notifications
-    //
-    // Response codes:
-    // 200 - ACK
-    // 201 - NACK
-    // 202 - Aff - data included
-    // 203 - Neg - data not found
-    // 204 - Aff - data not included
-    // 205 - Neg - data not included
-    // 206 - Successful write to database
-    // 207 - Failed to write to database
-    // 208 - Successful push to AppWebConnect
-    // 209 - Failed push to AppWebConnect
-    // 210 - Successful push to AppNotification
-    // 211 - Failed push to AppNotification
-    //
-    // ID Codes:
-    // 301 - MainActivity
-    // 302 - AppIO
-    // 303 - AppWebConnect
-    // 304 - AppNotification
-    // 305 - AppSettings
-    // 306 - AppDay
-    // 307 - AppWeek
-    // 308 - AppMonth
-    // 309 - AppGoal
-    // 310 - AppGoalsDay
-    // 311 - AppGoalsWeek
-    // 312 - AppGoalsMonth
-    // 313 - AppGoalsYear
-    // 314 - AppGoalsMaster
-    // 315 - AppGoalsBuilder
-    // 316 - AppTaskView
-    // 317 - AppTaskCreate
-    // 318 -
-
     // To do:
     //  1.) Access DAOs for User Info DB
     //  2.) Access DAOs for Events DB
