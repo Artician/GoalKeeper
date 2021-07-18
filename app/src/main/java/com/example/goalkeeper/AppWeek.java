@@ -48,19 +48,29 @@ public class AppWeek extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu){
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.action_bar_general, menu);
+        inflater.inflate(R.menu.action_bar_planner, menu);
+        menu.findItem(R.id.PA_week_button).setVisible(false);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
         switch(item.getItemId()){
-            case R.id.GA_home_button:
+            case R.id.PA_add_event_button:
+                return true;
+            case R.id.PA_day_button:
+                callPlannerDay();
+                return true;
+            case R.id.PA_month_button:
+                callPlannerMonth();
+                return true;
+            case R.id.PA_home_button:
                 callHome();
                 return true;
-            case R.id.GA_settings_button:
+            case R.id.PA_settings_button:
                 callSettings();
                 return true;
+
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -68,12 +78,30 @@ public class AppWeek extends AppCompatActivity {
 
     protected void callHome(){
         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT);
         startActivity(intent);
     }
 
     protected void callSettings(){
         Intent intent = new Intent(getApplicationContext(), AppSettings.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT);
         startActivity(intent);
+    }
+
+    protected void callPlannerDay(){
+        Intent intent = new Intent(getApplicationContext(), AppDay.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT);
+        startActivity(intent);
+    }
+
+    protected void callPlannerMonth(){
+        Intent intent = new Intent(getApplicationContext(), AppMonth.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT);
+        startActivity(intent);
+    }
+
+    protected void callAddEvent(){
+
     }
 
     protected void setWeek(Calendar givenDay) throws IllegalStateException{

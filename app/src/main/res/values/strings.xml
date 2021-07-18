@@ -5,6 +5,7 @@
     <string name="exDate">30</string>
     <string name="exYear">2021</string>
     <string name="exDay">Saturday</string>
+    <string name="exTime">00</string>
     <string name="dayGoalButton">View today\'s goals</string>
     <string name="weekGoalButton">View this week\'s goals</string>
     <string name="monthGoalButton">View this month\'s goals</string>
@@ -26,4 +27,28 @@
     <string name="submitButton">Submit</string>
     <string name="settingsTitle">Settings</string>
     <string name="homeTitle">Home</string>
+    <string name="dayPlannerTitle">Day</string>
+    <string name="weekPlannerTitle">Week</string>
+    <string name="monthPlannerTitle">Month</string>
+    <string name="addEventTitle">Add Event</string>
+    <string name="cancelTitle">Cancel</string>
+    <string name="editTitle">Enter a title. . .</string>
+    <string name="durationText">Duration</string>
+    <string name="optionalText">(optional)</string>
+    <string name="locationText">Location (optional)</string>
+    <string name="remindText">Reminder?</string>
+    <string name="repeatText">Repeat?</string>
+    <string name="intervalText">Remind interval</string>
+    <string name="statusText">Status: </string>
+    <string name="startDate">Start date:</string>
+    <string name="startTime">Start time:</string>
+    <string name="endDate">End date: </string>
+    <string name="endTime">End time: </string>
+    <string name="copyDateText">Same date as start</string>
+    <string name="createEventButton">Create event</string>
+    <string name="startDateButton">Select start date</string>
+    <string name="endDateButton">Select end date</string>
+    <string name="startTimeButton">Select start time</string>
+    <string name="endTimeButton">Select end time</string>
+    <string name="colon">:</string>
 </resources>

@@ -9,10 +9,12 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.GoalKeeper">
+        <activity android:name=".AppAddEvent"></activity>
+
         <service
             android:name=".AppPlannerService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true" />
 
         <activity android:name=".AppTaskCreate" />
         <activity android:name=".AppTaskView" />

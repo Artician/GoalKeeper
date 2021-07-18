@@ -33,6 +33,12 @@ public class AppEventsEntity {
     public int parentID;
 
     @ColumnInfo
+    public boolean hasChild;
+
+    @ColumnInfo
+    public int childID;
+
+    @ColumnInfo
     public String status;
 
     @ColumnInfo

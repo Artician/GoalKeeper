@@ -45,4 +45,5 @@
     <integer name="APP_TASK_VIEW">316</integer>
     <integer name="APP_TASK_CREATE">317</integer>
     <integer name="APP_PLANNER_SERVICE">318</integer>
+    <integer name="APP_ADD_EVENT">319</integer>
 </resources>

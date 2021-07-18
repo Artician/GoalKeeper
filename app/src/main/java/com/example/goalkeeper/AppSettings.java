@@ -4,12 +4,14 @@
  import android.content.Context;
  import android.content.Intent;
  import android.content.ServiceConnection;
+ import android.content.SharedPreferences;
  import android.os.Bundle;
  import android.os.Handler;
  import android.os.IBinder;
  import android.os.Message;
  import android.os.Messenger;
  import android.os.RemoteException;
+ import android.preference.PreferenceManager;
  import android.util.Log;
  import android.view.Menu;
  import android.view.MenuInflater;
@@ -36,8 +38,9 @@
      ServiceConnection ioServiceConnection = new IOServiceConnection();
 
         // Bundles to hold existing and new settings
+     SharedPreferences preferences;
 
-        Bundle existSettings, newSettings;
+        Bundle sharedSettings, newSettings;
 
         // View handlers
         Spinner plannerSpinner, weekSpinner, notificationSpinner;
@@ -62,41 +65,7 @@
             super.onCreate(savedInstanceState);
             setContentView(R.layout.activity_app_settings);
 
-            plannerSpinner      = (Spinner) findViewById(R.id.SA_PlannerSpinner);
-            weekSpinner         = (Spinner) findViewById(R.id.SA_WeekSpinner);
-            notificationSpinner = (Spinner) findViewById(R.id.SA_NotificationSpinner);
-
-            plannerSpinner.setOnItemSelectedListener(this);
-            weekSpinner.setOnItemSelectedListener(this);
-            notificationSpinner.setOnItemSelectedListener(this);
-
-            plannerAdapter      = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, plannerOptions);
-            weekAdapter         = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, weekOptions);
-            notificationAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, notificationOptions);
-
-            plannerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            weekAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            notificationAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
-            plannerSpinner.setAdapter(plannerAdapter);
-            weekSpinner.setAdapter(weekAdapter);
-            notificationSpinner.setAdapter(notificationAdapter);
-
-            // Set default values for the spinners.
-            // recode this to take values from existSettings
-            plannerSpinner.setSelection(0);
-            weekSpinner.setSelection(2);
-            notificationSpinner.setSelection(1);
-
-            try{
-                isBoundIO = bindIO();
-
-                if(!isBoundIO){
-                    throw new MissingResourceException("IO Service failed to bind", "AppSettings.class", "bad_bind");
-                }
-            } catch (MissingResourceException e){
-                e.printStackTrace();
-            }
+            init();
         }
 
         @Override
@@ -138,6 +107,49 @@
          }
      }
 
+     protected void init(){
+
+            preferences = PreferenceManager.getDefaultSharedPreferences(this);
+            sharedSettings = new Bundle();
+            newSettings = new Bundle();
+
+            getSharedSettings();
+
+         plannerSpinner      = (Spinner) findViewById(R.id.SA_PlannerSpinner);
+         weekSpinner         = (Spinner) findViewById(R.id.SA_WeekSpinner);
+         notificationSpinner = (Spinner) findViewById(R.id.SA_NotificationSpinner);
+
+         plannerSpinner.setOnItemSelectedListener(this);
+         weekSpinner.setOnItemSelectedListener(this);
+         notificationSpinner.setOnItemSelectedListener(this);
+
+         plannerAdapter      = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, plannerOptions);
+         weekAdapter         = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, weekOptions);
+         notificationAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, notificationOptions);
+
+         plannerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+         weekAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+         notificationAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+         plannerSpinner.setAdapter(plannerAdapter);
+         weekSpinner.setAdapter(weekAdapter);
+         notificationSpinner.setAdapter(notificationAdapter);
+
+         // Set default values for the spinners.
+         // recode this to take values from existSettings
+         updateViews(sharedSettings);
+
+         try{
+             isBoundIO = bindIO();
+
+             if(!isBoundIO){
+                 throw new MissingResourceException("IO Service failed to bind", "AppSettings.class", "bad_bind");
+             }
+         } catch (MissingResourceException e){
+             e.printStackTrace();
+         }
+     }
+
      protected boolean bindIO(){
          Intent intentIO = new Intent(getApplicationContext(), AppIO.class);
          return bindService(intentIO, ioServiceConnection, Context.BIND_AUTO_CREATE);
@@ -148,6 +160,18 @@
          if(isBoundIO){
              unbindService(ioServiceConnection);
              isBoundIO = false;
+         }
+     }
+
+     protected void getSharedSettings(){
+         if(preferences.contains("planner_default")){
+             sharedSettings.putInt("planner_default", preferences.getInt("planner_default", 999));
+         }
+         if(preferences.contains("week_default")){
+             sharedSettings.putInt("week_default", preferences.getInt("week_default", 999));
+         }
+         if(preferences.contains("notification_default")){
+             sharedSettings.putInt("notification_default", preferences.getInt("notification_default", 999));
          }
      }
 
@@ -244,10 +268,10 @@
 
              switch (replyCode){
                  case R.integer.READ_OK_RESULT_INCLUDED: // Settings found and included
-                     existSettings = new Bundle();
-                     existSettings = payload.getBundle("settings");
+                     sharedSettings = new Bundle();
+                     sharedSettings = payload.getBundle("settings");
 
-                     updateViews(existSettings);
+                     updateViews(sharedSettings);
                      break;
                  case R.integer.READ_BAD_NO_DATA: // Settings not found
                      Toast.makeText(getApplicationContext(), "Settings database not found",Toast.LENGTH_SHORT).show();
@@ -269,7 +293,10 @@
          @Override
          public void onServiceConnected(ComponentName name, IBinder service) {
              requestForIO = new Messenger(service);
+             getSharedSettings();
              requestForDefaults();
+
+             updateViews(sharedSettings);
          }
 
          @Override
