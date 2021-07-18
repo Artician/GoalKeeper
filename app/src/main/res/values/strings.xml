@@ -26,4 +26,8 @@
     <string name="submitButton">Submit</string>
     <string name="settingsTitle">Settings</string>
     <string name="homeTitle">Home</string>
+    <string name="dayPlannerTitle">Day</string>
+    <string name="weekPlannerTitle">Week</string>
+    <string name="monthPlannerTitle">Month</string>
+    <string name="addEventTitle">Add Event</string>
 </resources>

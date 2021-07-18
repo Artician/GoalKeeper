@@ -2,6 +2,7 @@ package com.example.goalkeeper;
 
 import android.app.Service;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -9,6 +10,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import androidx.room.Room;
@@ -29,6 +31,7 @@ public class AppIO extends Service {
     AppEventsDAO eventsDAO;
 
     // Data variables for other activities
+    SharedPreferences preferences;
     ArrayList<AppEventsEntity> events = new ArrayList<>();
     Bundle settingsObject = new Bundle();
 
@@ -48,7 +51,7 @@ public class AppIO extends Service {
     // Lifecycle Methods
     @Override
     public void onCreate(){
-        initDB();
+        init();
         new readFromEventsDBTask().execute();
     }
 
@@ -58,11 +61,13 @@ public class AppIO extends Service {
     }
 
     // Database Init  Helper functions
-    protected void initDB(){
+    protected void init(){
         settingsDB = Room.databaseBuilder(getApplicationContext(), AppSettingsDB.class, "settings-db").build();
         settingsDAO = settingsDB.appSettingsDAO();
         eventsDB = Room.databaseBuilder(getApplicationContext(), AppEventsDB.class, "events_db").build();
         eventsDAO = eventsDB.appEventsDAO();
+
+        preferences = PreferenceManager.getDefaultSharedPreferences(this);
     }
 
     // Settings DB helper functions
@@ -119,23 +124,38 @@ public class AppIO extends Service {
                 boolean initialized = initDatabase();
                 if(initialized){
                     if((settings.getInt("planner_default", 999) != 999)){
+                        SharedPreferences.Editor editor = preferences.edit();
+
                         AppSettingsEntity temp = new AppSettingsEntity();
                         temp.setting_name   = "planner_default";
                         temp.value          = settings.getInt("planner_default");
 
+                        editor.putInt(temp.setting_name, temp.value);
+                        editor.apply();
+
                         updateList.add(temp);
                     }
                     if((settings.getInt("week_default", 999) != 999)){
+                        SharedPreferences.Editor editor = preferences.edit();
+
                         AppSettingsEntity temp = new AppSettingsEntity();
                         temp.setting_name   = "week_default";
                         temp.value          = settings.getInt("week_default");
 
+                        editor.putInt(temp.setting_name, temp.value);
+                        editor.apply();
+
                         updateList.add(temp);
                     }
                     if((settings.getInt("notification_default", 999) != 999)){
+
+                        SharedPreferences.Editor editor = preferences.edit();
                         AppSettingsEntity temp = new AppSettingsEntity();
                         temp.setting_name   = "notification_default";
                         temp.value          = settings.getInt("notification_default");
+
+                        editor.putInt(temp.setting_name, temp.value);
+                        editor.apply();
 
                         updateList.add(temp);
                     }
@@ -152,6 +172,10 @@ public class AppIO extends Service {
         }
         else
             return false;
+
+    }
+
+    protected void setSharedSettings(){
 
     }
 

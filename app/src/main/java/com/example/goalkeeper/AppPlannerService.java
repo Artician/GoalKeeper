@@ -5,12 +5,14 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -32,7 +34,8 @@ public class AppPlannerService extends Service {
     ServiceConnection ioServiceConnection = new IOServiceConnection();
 
     // Variables for activities
-    Bundle settingsFromIO;
+    SharedPreferences preferences;
+    Bundle sharedSettings;
     public AppPlannerService() {
     }
 
@@ -57,6 +60,18 @@ public class AppPlannerService extends Service {
         unBindIO();
     }
 
+    protected void getSharedSettings(){
+        if(preferences.contains("planner_default")){
+            sharedSettings.putInt("planner_default", preferences.getInt("planner_default", 999));
+        }
+        if(preferences.contains("week_default")){
+            sharedSettings.putInt("week_default", preferences.getInt("week_default", 999));
+        }
+        if(preferences.contains("notification_default")){
+            sharedSettings.putInt("notification_default", preferences.getInt("notification_default", 999));
+        }
+    }
+
     protected boolean bindIO(){
         Intent intentIO = new Intent(getApplicationContext(), AppIO.class);
         return bindService(intentIO, ioServiceConnection, Context.BIND_AUTO_CREATE);
@@ -71,8 +86,10 @@ public class AppPlannerService extends Service {
     }
 
     protected void init(){
-        settingsFromIO = new Bundle();
+        sharedSettings = new Bundle();
+        preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
+        getSharedSettings();
         Log.i("appPlannerService", "Init entered");
         // Bind IO
         try{
@@ -91,7 +108,7 @@ public class AppPlannerService extends Service {
     protected void callDefaultActivity(){
         Log.i("appPlannerService", "callDefaultActivity entered");
         Intent intent;
-        switch (settingsFromIO.getInt("planner_default")){
+        switch (sharedSettings.getInt("planner_default")){
             case 0:
                 intent = new Intent(this, AppDay.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -152,8 +169,7 @@ public class AppPlannerService extends Service {
                     switch(payload.getInt("reply")){
                         case R.integer.READ_OK_RESULT_INCLUDED:
                             Log.i("appPlannerService", "Settings received");
-                            settingsFromIO = new Bundle();
-                            settingsFromIO = payload.getBundle("settings");
+                            getSharedSettings();
                             break;
 
                         case R.integer.READ_BAD_NO_DATA: // Settings not found

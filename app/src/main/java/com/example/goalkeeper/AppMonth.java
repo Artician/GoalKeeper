@@ -46,19 +46,20 @@ public class AppMonth extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu){
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.action_bar_general, menu);
+        inflater.inflate(R.menu.action_bar_planner, menu);
+        menu.findItem(R.id.PA_month_button).setVisible(false);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
         switch(item.getItemId()){
-            case R.id.GA_home_button:
-                callHome();
-                return true;
-            case R.id.GA_settings_button:
-                callSettings();
-                return true;
+            case R.id.PA_add_event_button:
+            case R.id.PA_day_button:
+            case R.id.PA_week_button:
+            case R.id.PA_home_button:
+            case R.id.PA_settings_button:
+
             default:
                 return super.onOptionsItemSelected(item);
         }
