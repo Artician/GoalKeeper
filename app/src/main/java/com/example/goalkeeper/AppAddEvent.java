@@ -36,7 +36,6 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.MissingResourceException;
 
 public class AppAddEvent extends AppCompatActivity implements AdapterView.OnItemSelectedListener{
@@ -441,16 +440,16 @@ public class AppAddEvent extends AppCompatActivity implements AdapterView.OnItem
             replyCode = payload.getInt("reply");
 
             switch (replyCode){
-                case R.integer.READ_OK_RESULT_INCLUDED: // Settings found and included
+                case AppUtils.READ_OK_RESULT_INCLUDED: // Settings found and included
 
                     break;
-                case R.integer.READ_BAD_NO_DATA: // Settings not found
+                case AppUtils.READ_BAD_NO_DATA: // Settings not found
                     Toast.makeText(getApplicationContext(), "Settings database not found",Toast.LENGTH_SHORT).show();
                     break;
-                case R.integer.DB_WRITE_OK: // Database updated
+                case AppUtils.DB_WRITE_OK: // Database updated
                     Toast.makeText(getApplicationContext(), "Settings updated", Toast.LENGTH_SHORT).show();
                     break;
-                case R.integer.DB_WRITE_FAILED: // Database update failed
+                case AppUtils.DB_WRITE_FAILED: // Database update failed
                     Toast.makeText(getApplicationContext(), "Settings failed to update", Toast.LENGTH_SHORT).show();
                     break;
                 default:

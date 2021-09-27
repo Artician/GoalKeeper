@@ -24,6 +24,8 @@ public class AppWeek extends AppCompatActivity {
     Bundle eventsBundle;
     Calendar today, firstDayWeek, lastDayWeek;
 
+    DateUtils duObject = new DateUtils();
+
     //  Overview:
     //  This activity should serve as an overview of the coming days and their schedule. It will
     //  gain a variable from IO that determines the mode it loads in, either displaying:
@@ -152,44 +154,13 @@ public class AppWeek extends AppCompatActivity {
     }
 
     protected void updateViews(){
-        String firstMonthText = getMonth(firstDayWeek.get(Calendar.MONTH));
-        String secondMonthText = getMonth(lastDayWeek.get(Calendar.MONTH));
+        String firstMonthText = duObject.getMonth(firstDayWeek.get(Calendar.MONTH));
+        String secondMonthText = duObject.getMonth(lastDayWeek.get(Calendar.MONTH));
 
         firstDay.setText(Integer.toString(firstDayWeek.get(Calendar.DATE)));
         firstMonth.setText(firstMonthText);
         secondDay.setText(Integer.toString(lastDayWeek.get(Calendar.DATE)));
         secondMonth.setText(secondMonthText);
-    }
-
-    protected String getMonth(int calendarID) throws IllegalStateException{
-        switch (calendarID){
-            case Calendar.JANUARY:
-                return "January";
-            case Calendar.FEBRUARY:
-                return "February";
-            case Calendar.MARCH:
-                return "March";
-            case Calendar.APRIL:
-                return "April";
-            case Calendar.MAY:
-                return "May";
-            case Calendar.JUNE:
-                return "June";
-            case Calendar.JULY:
-                return "July";
-            case Calendar.AUGUST:
-                return "August";
-            case Calendar.SEPTEMBER:
-                return "September";
-            case Calendar.OCTOBER:
-                return "October";
-            case Calendar.NOVEMBER:
-                return "November";
-            case Calendar.DECEMBER:
-                return "December";
-            default:
-                throw new IllegalStateException("Unexpected value: " + calendarID);
-        }
     }
 
     class MyIncomingHandler extends Handler {
@@ -202,15 +173,15 @@ public class AppWeek extends AppCompatActivity {
             replyCode = payload.getInt("reply");
 
             switch (replyCode){
-                case R.integer.READ_OK_RESULT_INCLUDED: // Settings found and included
+                case AppUtils.READ_OK_RESULT_INCLUDED: // Settings found and included
                     break;
-                case R.integer.READ_BAD_NO_DATA: // Settings not found
+                case AppUtils.READ_BAD_NO_DATA: // Settings not found
                     Toast.makeText(getApplicationContext(), "Settings database not found",Toast.LENGTH_SHORT).show();
                     break;
-                case R.integer.DB_WRITE_OK: // Database updated
+                case AppUtils.DB_WRITE_OK: // Database updated
                     Toast.makeText(getApplicationContext(), "Settings updated", Toast.LENGTH_SHORT).show();
                     break;
-                case R.integer.DB_WRITE_FAILED: // Database update failed
+                case AppUtils.DB_WRITE_FAILED: // Database update failed
                     Toast.makeText(getApplicationContext(), "Settings failed to update", Toast.LENGTH_SHORT).show();
                     break;
                 default:

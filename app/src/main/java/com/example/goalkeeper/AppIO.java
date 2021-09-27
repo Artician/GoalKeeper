@@ -246,25 +246,25 @@ public class AppIO extends Service {
             Bundle payload = incomingMessage.getData();
 
             switch(payload.getInt("source")){
-                case R.integer.MAIN_ACTIVITY:
+                case AppUtils.MAIN_ACTIVITY:
                     replyToMainActivity(response, payload);
                     break;
 
-                case R.integer.APP_SETTINGS:
+                case AppUtils.APP_SETTINGS:
                     switch (payload.getInt("request")){
-                        case R.integer.READ_REQUEST: // Read from settings DB
+                        case AppUtils.READ_REQUEST: // Read from settings DB
                             new readFromSettingsDatabaseTask().execute(response);
                             break;
-                        case R.integer.WRITE_REQUEST: // Write to settings DB
+                        case AppUtils.WRITE_REQUEST: // Write to settings DB
                             Envelope forTask = new Envelope(response, payload);
                             new writeToSettingsDatabaseTask().execute(forTask);
                             break;
                         default:
                             break;
                     }
-                case R.integer.APP_PLANNER_SERVICE:
+                case AppUtils.APP_PLANNER_SERVICE:
                     switch (payload.getInt("request")){
-                        case R.integer.READ_REQUEST: // Read from settings DB
+                        case AppUtils.READ_REQUEST: // Read from settings DB
                             new readFromSettingsDatabaseTask().execute(response);
                             break;
                         default:
@@ -280,11 +280,11 @@ public class AppIO extends Service {
 
     // Specific messaging functions
     protected void replyToMainActivity(Messenger postmarkedEnvelope, Bundle receivedData)  {
-        if(receivedData.getInt("request") == R.integer.ACK_REQUEST){
+        if(receivedData.getInt("request") == AppUtils.ACK_REQUEST){
             Message response = Message.obtain();
             Bundle sendData = new Bundle();
-            sendData.putInt("source", R.integer.APP_IO);
-            sendData.putInt("reply", R.integer.ACK);
+            sendData.putInt("source", AppUtils.APP_IO);
+            sendData.putInt("reply", AppUtils.ACK);
             sendData.putString("reply_text", "OK");
             sendData.putBundle("settings", settingsObject);
             response.setData(sendData);
@@ -299,13 +299,13 @@ public class AppIO extends Service {
     protected void sendSettingsFromDB(Messenger postmarkedEnvelope, Bundle settings){
         Message response = Message.obtain();
         Bundle sendData = new Bundle();
-        sendData.putInt("source", R.integer.APP_IO);
+        sendData.putInt("source", AppUtils.APP_IO);
 
         if(settings.isEmpty()){
-            sendData.putInt("reply", R.integer.READ_BAD_NO_DATA);
+            sendData.putInt("reply", AppUtils.READ_BAD_NO_DATA);
 
         } else{
-            sendData.putInt("reply", R.integer.READ_OK_RESULT_INCLUDED);
+            sendData.putInt("reply", AppUtils.READ_OK_RESULT_INCLUDED);
             sendData.putBundle("settings", settings);
         }
 
@@ -320,13 +320,13 @@ public class AppIO extends Service {
     protected void sendDBUpdateStatus(Messenger postmarkedEnvelope, boolean success){
         Message response = Message.obtain();
         Bundle sendData = new Bundle();
-        sendData.putInt("source", R.integer.APP_IO);
+        sendData.putInt("source", AppUtils.APP_IO);
 
         if(success){
-            sendData.putInt("reply", R.integer.DB_WRITE_OK);
+            sendData.putInt("reply", AppUtils.DB_WRITE_OK);
 
         } else{
-            sendData.putInt("reply", R.integer.DB_WRITE_FAILED);
+            sendData.putInt("reply", AppUtils.DB_WRITE_FAILED);
         }
 
         response.setData(sendData);

@@ -181,8 +181,8 @@
 
 
              Bundle data = new Bundle();
-             data.putInt("source", R.integer.APP_SETTINGS);
-             data.putInt("request", R.integer.READ_REQUEST);
+             data.putInt("source", AppUtils.APP_SETTINGS);
+             data.putInt("request", AppUtils.READ_REQUEST);
 
              Message message = Message.obtain();
              message.replyTo = replyFromIO;
@@ -200,8 +200,8 @@
 
      public void updateDB(Bundle update){
             Bundle payload = new Bundle(); //Bundle.deepcopy isn't in this sdk
-            payload.putInt("source", R.integer.APP_SETTINGS);
-            payload.putInt("request", R.integer.WRITE_REQUEST);
+            payload.putInt("source", AppUtils.APP_SETTINGS);
+            payload.putInt("request", AppUtils.WRITE_REQUEST);
             payload.putInt("planner_default", update.getInt("planner_default"));
             payload.putInt("week_default", update.getInt("week_default"));
             payload.putInt("notification_default", update.getInt("notification_default"));
@@ -267,19 +267,19 @@
              replyCode = payload.getInt("reply");
 
              switch (replyCode){
-                 case R.integer.READ_OK_RESULT_INCLUDED: // Settings found and included
+                 case AppUtils.READ_OK_RESULT_INCLUDED: // Settings found and included
                      sharedSettings = new Bundle();
                      sharedSettings = payload.getBundle("settings");
 
                      updateViews(sharedSettings);
                      break;
-                 case R.integer.READ_BAD_NO_DATA: // Settings not found
+                 case AppUtils.READ_BAD_NO_DATA: // Settings not found
                      Toast.makeText(getApplicationContext(), "Settings database not found",Toast.LENGTH_SHORT).show();
                      break;
-                 case R.integer.DB_WRITE_OK: // Database updated
+                 case AppUtils.DB_WRITE_OK: // Database updated
                      Toast.makeText(getApplicationContext(), "Settings updated", Toast.LENGTH_SHORT).show();
                      break;
-                 case R.integer.DB_WRITE_FAILED: // Database update failed
+                 case AppUtils.DB_WRITE_FAILED: // Database update failed
                      Toast.makeText(getApplicationContext(), "Settings failed to update", Toast.LENGTH_SHORT).show();
                      break;
                  default:

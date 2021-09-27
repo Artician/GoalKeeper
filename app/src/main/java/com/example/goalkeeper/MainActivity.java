@@ -183,8 +183,8 @@ public class MainActivity extends AppCompatActivity {
 
 
             Bundle data = new Bundle();
-            data.putInt("source", R.integer.MAIN_ACTIVITY);
-            data.putInt("request", R.integer.ACK_REQUEST);
+            data.putInt("source", AppUtils.MAIN_ACTIVITY);
+            data.putInt("request", AppUtils.ACK_REQUEST);
 
             Message message = Message.obtain();
             message.replyTo = replyFromIO;
@@ -204,8 +204,8 @@ public class MainActivity extends AppCompatActivity {
         if(isBoundPlanner)
         {
             Bundle data = new Bundle();
-            data.putInt("source", R.integer.MAIN_ACTIVITY);
-            data.putInt("request", R.integer.LAUNCH_ACTIVITY_REQUEST);
+            data.putInt("source", AppUtils.MAIN_ACTIVITY);
+            data.putInt("request", AppUtils.LAUNCH_ACTIVITY_REQUEST);
 
             Message message = Message.obtain();
             message.replyTo = replyFromPlanner;
@@ -314,7 +314,7 @@ public class MainActivity extends AppCompatActivity {
             replyText   = payload.getCharSequence("reply_text");
             settings    = payload.getBundle("settings");
 
-            if(replyCode == R.integer.ACK){ // ACK code from IO
+            if(replyCode == AppUtils.ACK){ // ACK code from IO
                 String newDebug = "IO Service status:     " +
                         replyText;
                 setDebugText(newDebug);

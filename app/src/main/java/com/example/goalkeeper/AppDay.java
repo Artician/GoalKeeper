@@ -31,6 +31,7 @@ public class AppDay extends AppCompatActivity {
     TextView displayDate, displayDay, displayMonth, displayYear;
     Bundle eventsBundle;
     Calendar today;
+    DateUtils duObject = new DateUtils();
 
     // Overview:
     // This activity's main purpose is to display a detailed view of all goals and events the user
@@ -130,64 +131,13 @@ public class AppDay extends AppCompatActivity {
 
 
     protected void updateViewsToDate(){
-        String day      = getDay(today.get(Calendar.DAY_OF_WEEK));
-        String month    = getMonth(today.get(Calendar.MONTH));
+        String day      = duObject.getDay(today.get(Calendar.DAY_OF_WEEK));
+        String month    = duObject.getMonth(today.get(Calendar.MONTH));
 
         displayDate.setText(Integer.toString(today.get(Calendar.DATE)));
         displayYear.setText(Integer.toString(today.get(Calendar.YEAR)));
         displayDay.setText(day);
         displayMonth.setText(month);
-    }
-
-    protected String getDay(int calendarID) throws IllegalStateException{
-        switch (calendarID){
-            case Calendar.SUNDAY:
-                return  "Sunday";
-            case Calendar.MONDAY:
-                return  "Monday";
-            case Calendar.TUESDAY:
-                return  "Tuesday";
-            case Calendar.WEDNESDAY:
-                return  "Wednesday";
-            case Calendar.THURSDAY:
-                return  "Thursday";
-            case Calendar.FRIDAY:
-                return  "Friday";
-            case Calendar.SATURDAY:
-                return  "Saturday";
-            default:
-                throw new IllegalStateException("Unexpected value: " + today.get(Calendar.DAY_OF_WEEK));
-        }
-    }
-    protected String getMonth(int calendarID) throws IllegalStateException{
-        switch (calendarID){
-            case Calendar.JANUARY:
-                return "January";
-            case Calendar.FEBRUARY:
-                return "February";
-            case Calendar.MARCH:
-                return "March";
-            case Calendar.APRIL:
-                return "April";
-            case Calendar.MAY:
-                return "May";
-            case Calendar.JUNE:
-                return "June";
-            case Calendar.JULY:
-                return "July";
-            case Calendar.AUGUST:
-                return "August";
-            case Calendar.SEPTEMBER:
-                return "September";
-            case Calendar.OCTOBER:
-                return "October";
-            case Calendar.NOVEMBER:
-                return "November";
-            case Calendar.DECEMBER:
-                return "December";
-            default:
-                throw new IllegalStateException("Unexpected value: " + calendarID);
-        }
     }
 
     // Data manipulation
@@ -201,15 +151,15 @@ public class AppDay extends AppCompatActivity {
             // Do some stuff with the variables and the reply codes
 
             switch (payload.getInt("reply")){
-                case R.integer.READ_OK_RESULT_INCLUDED: // Settings found and included
+                case AppUtils.READ_OK_RESULT_INCLUDED: // Settings found and included
                     break;
-                case R.integer.READ_BAD_NO_DATA: // Settings not found
+                case AppUtils.READ_BAD_NO_DATA: // Settings not found
                     Toast.makeText(getApplicationContext(), "Settings database not found",Toast.LENGTH_SHORT).show();
                     break;
-                case R.integer.DB_WRITE_OK: // Database updated
+                case AppUtils.DB_WRITE_OK: // Database updated
                     Toast.makeText(getApplicationContext(), "Settings updated", Toast.LENGTH_SHORT).show();
                     break;
-                case R.integer.DB_WRITE_FAILED: // Database update failed
+                case AppUtils.DB_WRITE_FAILED: // Database update failed
                     Toast.makeText(getApplicationContext(), "Settings failed to update", Toast.LENGTH_SHORT).show();
                     break;
                 default:

@@ -138,8 +138,8 @@ public class AppPlannerService extends Service {
 
 
             Bundle data = new Bundle();
-            data.putInt("source", R.integer.APP_PLANNER_SERVICE);
-            data.putInt("request", R.integer.READ_REQUEST);
+            data.putInt("source", AppUtils.APP_PLANNER_SERVICE);
+            data.putInt("request", AppUtils.READ_REQUEST);
 
             Message message = Message.obtain();
             message.replyTo = replyFromIO;
@@ -165,34 +165,34 @@ public class AppPlannerService extends Service {
 
             Log.i("appPlannerService", "Message received");
             switch (payload.getInt("source")){
-                case R.integer.APP_IO:
+                case AppUtils.APP_IO:
                     switch(payload.getInt("reply")){
-                        case R.integer.READ_OK_RESULT_INCLUDED:
+                        case AppUtils.READ_OK_RESULT_INCLUDED:
                             Log.i("appPlannerService", "Settings received");
                             getSharedSettings();
                             break;
 
-                        case R.integer.READ_BAD_NO_DATA: // Settings not found
+                        case AppUtils.READ_BAD_NO_DATA: // Settings not found
                             Toast.makeText(getApplicationContext(), "Settings database not found",Toast.LENGTH_SHORT).show();
                             break;
 
-                        case R.integer.DB_WRITE_OK: // Database updated
+                        case AppUtils.DB_WRITE_OK: // Database updated
                             Toast.makeText(getApplicationContext(), "Settings updated", Toast.LENGTH_SHORT).show();
                             break;
 
-                        case R.integer.DB_WRITE_FAILED: // Database update failed
+                        case AppUtils.DB_WRITE_FAILED: // Database update failed
                             Toast.makeText(getApplicationContext(), "Settings failed to update", Toast.LENGTH_SHORT).show();
                             break;
 
                         default:
                             break;
                     }
-                case R.integer.APP_DAY:
-                case R.integer.APP_WEEK:
-                case R.integer.APP_MONTH:
-                case R.integer.MAIN_ACTIVITY:
+                case AppUtils.APP_DAY:
+                case AppUtils.APP_WEEK:
+                case AppUtils.APP_MONTH:
+                case AppUtils.MAIN_ACTIVITY:
                     switch (payload.getInt("request")){
-                        case R.integer.LAUNCH_ACTIVITY_REQUEST:
+                        case AppUtils.LAUNCH_ACTIVITY_REQUEST:
                             callDefaultActivity();
                             break;
                         default:
