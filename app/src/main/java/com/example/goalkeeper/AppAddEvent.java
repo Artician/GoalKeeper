@@ -170,19 +170,14 @@ public class AppAddEvent extends AppCompatActivity implements AdapterView.OnItem
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         Intent callIntent = getIntent();
+        Bundle callExtras = callIntent.getExtras();
         Calendar fromIntent = Calendar.getInstance();
 
-        switch (callIntent.getStringExtra("source_date")){
-            case "today":
-                populateDates(fromIntent);
-                break;
-            case "other":
+        if(callExtras != null){
+            fromIntent.set(callExtras.getInt("year"), callExtras.getInt("month"), callExtras.getInt("day"));
 
-            default:
-                Log.e("AppAddEvent/init()", "Invalid source");
-                break;
         }
-
+        populateDates(fromIntent);
 
 
         try{
@@ -313,7 +308,7 @@ public class AppAddEvent extends AppCompatActivity implements AdapterView.OnItem
 
     public void onClickStartTime(View view) {
         TimePickerDialogFragment newFragment = new TimePickerDialogFragment();
-        newFragment.setFlag(TimePickerDialogFragment.FLAG_START_TIME);
+        //newFragment.setFlag(TimePickerDialogFragment.FLAG_START_TIME);
         newFragment.show(getSupportFragmentManager(), "timePicker");
     }
 
@@ -327,7 +322,6 @@ public class AppAddEvent extends AppCompatActivity implements AdapterView.OnItem
 
         public static final int FLAG_START_TIME = 0;
         public static final int FLAG_END_TIME = 1;
-
         private int flag;
 
         @NonNull

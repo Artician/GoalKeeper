@@ -30,6 +30,7 @@ public class AppDay extends AppCompatActivity {
 
     TextView displayDate, displayDay, displayMonth, displayYear;
     Bundle eventsBundle;
+
     Calendar today;
     DateUtils duObject = new DateUtils();
 
@@ -58,6 +59,7 @@ public class AppDay extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item){
         switch(item.getItemId()){
             case R.id.PA_add_event_button:
+                callAddEvent();
                 return true;
             case R.id.PA_week_button:
                 callPlannerWeek();
@@ -83,7 +85,8 @@ public class AppDay extends AppCompatActivity {
         displayMonth = (TextView) findViewById(R.id.DA_monthText);
         displayYear  = (TextView) findViewById(R.id.DA_yearText);
 
-        today = Calendar.getInstance();
+        // today = Calendar.getInstance();
+        setToday();
         updateViewsToDate();
 
         try{
@@ -93,6 +96,26 @@ public class AppDay extends AppCompatActivity {
             }
         } catch (MissingResourceException e){
             e.printStackTrace();
+        }
+    }
+
+    public void setToday() {
+        Intent calling = getIntent();
+
+        Bundle extras = calling.getExtras();
+
+        if (extras != null){
+            if(extras.getString("future", "NOT_FOUND") == "NOT_FOUND"){
+                today = Calendar.getInstance();
+            } else {
+                Calendar temp = Calendar.getInstance();
+
+                temp.set(extras.getInt("year"), extras.getInt("month"), extras.getInt("day"));
+
+                this.today = temp;
+            }
+        } else{
+            today = Calendar.getInstance();
         }
     }
 
@@ -126,7 +149,12 @@ public class AppDay extends AppCompatActivity {
     }
 
     protected void callAddEvent(){
-
+        Intent intent = new Intent(getApplicationContext(), AppAddEvent.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT);
+        intent.putExtra("year", today.get(Calendar.YEAR));
+        intent.putExtra("month", today.get(Calendar.MONTH));
+        intent.putExtra("day", today.get(Calendar.DATE));
+        startActivity(intent);
     }
 
 
